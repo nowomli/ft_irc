@@ -6,7 +6,7 @@
 /*   By: inovomli <inovomli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/18 14:31:25 by inovomli          #+#    #+#             */
-/*   Updated: 2023/06/18 17:00:41 by inovomli         ###   ########.fr       */
+/*   Updated: 2023/06/20 15:48:31 by inovomli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,11 @@ User::User(int socfd)
 	isPassInput = false;
 	isNickInput = false;
 	isUserNameI = false;	
+}
+
+User::User()
+{
+
 }
 
 User::~User()

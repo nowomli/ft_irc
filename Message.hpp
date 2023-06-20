@@ -21,7 +21,9 @@ public:
 
 Message::Message(char *buf)
 {
-	message = str(buf);
+	// message = str(buf);
+	// std::string test = str(buf);
+	message = buf;
 	std::istringstream iss(message);
 	std::string token;
 	iss >> token;

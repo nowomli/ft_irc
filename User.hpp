@@ -24,6 +24,7 @@ public:
 	// std::vector<Channel> channels; // map?
 
 	User(int socfd);
+	User();
 	~User();
 
 	void setNickname(std::string nickname);
