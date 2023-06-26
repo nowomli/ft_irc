@@ -6,7 +6,7 @@
 /*   By: inovomli <inovomli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/17 11:05:15 by inovomli          #+#    #+#             */
-/*   Updated: 2023/06/20 15:49:01 by inovomli         ###   ########.fr       */
+/*   Updated: 2023/06/21 17:41:19 by inovomli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,7 @@ private:
 
 	std::vector <struct pollfd> _fds;
 	std::map <int, User> _users;
-	std::map <int, Channel> _channels;	
+	std::vector <Channel> _channels;	
 public:
 	Server(int port, std::string pass);
 	~Server();
@@ -60,6 +60,9 @@ public:
 	void handleMessage(int fd, int ind);
 	void disconnectUser(int fd, int ret);
 	void processMessage(char *buf, int fd);
+
+	bool IsChannelExist(std::string chanName);
+	Channel *recieveChannel(std::string chanName);
 
 	void cmdPass(int fd, Message msg);
 	void cmdNick(int fd, Message msg);
@@ -310,9 +313,9 @@ void Server::cmdPass(int fd, Message msg)
 	{
 		if (_pass == msg.msgArgs[0])
 			_users[fd].setIsPassInput();
-		// else 
-			// response = "incorrect password\r\n";
-			// send(fd, response.c_str(), response.size(), 0);	
+		else 
+			response = ":" + _host + " 464 " + "PASS" + " :Password incorrect\r\n";
+			send(fd, response.c_str(), response.size(), 0);	
 			// if send < 0 => error			
 	}
 		// response = "already login\r\n";
@@ -323,8 +326,11 @@ void Server::cmdPass(int fd, Message msg)
 void Server::cmdNick(int fd, Message msg)
 {
 	std::string resp;
-	if (findUserForNick(msg.msgArgs[0]) != -1)
+	std::cout << msg.msgArgs[0] << std::endl;
+	if (findUserForNick(msg.msgArgs[0]) == -1)
+	{
 		_users[fd].setNickname(msg.msgArgs[0]);
+	}
 	else
 	{
 		resp = ":"+_host+" 433 "+ _users[fd].getNickname()+" "+msg.msgArgs[0]+":Nickname is already in use\r\n";
@@ -332,7 +338,8 @@ void Server::cmdNick(int fd, Message msg)
 	}
 	if (_users[fd].getIsNickInput() && _users[fd].getIsUserNameI())
 	{
-// welcome!
+		resp = ":"+_host+" 001 "+_users[fd].getNickname()+" :Welcome to the irc network "+_users[fd].getNickname()+"!\r\n";
+		int ret3 = send(fd, resp.c_str(), resp.size(), 0);	
 	}
 }
 
@@ -353,12 +360,55 @@ int Server::findUserForNick(std::string nick)
 
 void Server::cmdUser(int fd, Message msg)
 {
+	std::string resp;
 	_users[fd].setUsername(msg.msgArgs[0]);
+	if (_users[fd].getIsNickInput() && _users[fd].getIsUserNameI())
+	{
+		resp = ":"+_host+" 001 "+_users[fd].getNickname()+" :Welcome to the irc network "+_users[fd].getNickname()+"!\r\n";
+		int ret3 = send(fd, resp.c_str(), resp.size(), 0);	
+	}	
+}
+
+bool Server::IsChannelExist(std::string chanName)
+{
+	for(int i = 0; i < _channels.size(); i++)
+	{
+		if (_channels[i].getChanName() == chanName)
+			return true;
+	}
+	return false;	
+}
+
+Channel *Server::recieveChannel(std::string chanName)
+{
+	for(int i = 0; i < _channels.size(); i++)
+	{
+		if (_channels[i].getChanName() == chanName)
+			return &_channels[i];
+	}	
+	return NULL;
 }
 
 void Server::cmdJoin(int fd, Message msg)
 {
-	
+	if (msg.msgArgs.size() < 1)
+	{
+		std::cout << "not enougth args" << std::endl;
+		// send resp
+	}
+
+	// divide channels to separete channel
+	std::string chnm = msg.msgArgs[0]; // TODO !!!
+	if (IsChannelExist(chnm))
+	{
+		recieveChannel(chnm)->addUserToChannel(&_users[fd]);
+	}
+	else
+	{
+		Channel newChl(chnm);
+		newChl.addUserToChannel(&_users[fd]);
+		_channels.push_back(newChl);
+	}
 }
 
 void Server::cmdPrivmsg(int fd, Message msg)
