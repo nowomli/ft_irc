@@ -35,10 +35,25 @@ Message::Message(char *buf)
 	}
 	else 
 	    command = token;
-	while (iss >> token)
-		msgArgs.push_back(token); // TODO ?
-
-	// if 
+    while (std::getline(iss, token, ' ')) 
+    {
+        // Check if the token contains ':'
+        if (token.find(':') != std::string::npos) 
+        {
+            std::string remaining = token;
+            while (std::getline(iss, token, ' ')) 
+            {
+                remaining += token;
+                if (iss.peek() != EOF) 
+                    remaining += ' ';
+            }
+			remaining.erase(0,1);
+            msgArgs.push_back(remaining);
+            break;
+        }
+        else 
+            msgArgs.push_back(token);
+	}
 }
 
 Message::~Message()

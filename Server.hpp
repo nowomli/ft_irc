@@ -6,7 +6,7 @@
 /*   By: inovomli <inovomli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/17 11:05:15 by inovomli          #+#    #+#             */
-/*   Updated: 2023/06/21 17:41:19 by inovomli         ###   ########.fr       */
+/*   Updated: 2023/06/26 18:51:27 by inovomli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -389,6 +389,21 @@ Channel *Server::recieveChannel(std::string chanName)
 	return NULL;
 }
 
+std::vector<std::string> divideChannelsToJoin(std::string msgprt)
+{
+	std::vector<std::string> joinChans;
+	std::istringstream iss(msgprt);
+    std::string token;
+	if (msgprt.find(',') == std::string::npos)
+		joinChans.push_back(msgprt);
+	else
+	{
+		while (std::getline(iss, token, ',')) 
+			joinChans.push_back(token);
+	}
+	return joinChans;
+}
+
 void Server::cmdJoin(int fd, Message msg)
 {
 	if (msg.msgArgs.size() < 1)
@@ -398,16 +413,22 @@ void Server::cmdJoin(int fd, Message msg)
 	}
 
 	// divide channels to separete channel
+	std::string resp;
+	int ret;
 	std::string chnm = msg.msgArgs[0]; // TODO !!!
 	if (IsChannelExist(chnm))
 	{
 		recieveChannel(chnm)->addUserToChannel(&_users[fd]);
+		resp = ":"+_users[fd].getNickname()+" JOIN :"+chnm+"\r\n";
+		ret = send(fd, resp.c_str(), resp.size(), 0);			
 	}
 	else
 	{
 		Channel newChl(chnm);
 		newChl.addUserToChannel(&_users[fd]);
 		_channels.push_back(newChl);
+		resp = ":"+_users[fd].getNickname()+" JOIN :"+chnm+"\r\n";
+		ret = send(fd, resp.c_str(), resp.size(), 0);		
 	}
 }
 
