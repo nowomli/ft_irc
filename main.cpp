@@ -18,13 +18,13 @@ int main(int argc, char *argv[])
 {
 	if (argc != 3)
 	{
-		std::cerr << "incorrest args" << std::endl;
-		return 1;
+		std::cerr << "\033[1;94mUsage: ./ircserv <port> <password>\033[0m" << std::endl;
+		return EXIT_FAILURE;
 	}
 	if (std::atoi(argv[1]) <= 0)
 	{
-		std::cerr << "incorrest port" << std::endl;
-		return 1;
+		std::cerr << "\033[1;94mInvalid <port> argument\033[0m" << std::endl;
+		return EXIT_FAILURE;
 	}
 
 	Server serv(std::atoi(argv[1]), argv[2]);
@@ -34,5 +34,5 @@ int main(int argc, char *argv[])
 	}
 	// server.finish();
 
-	return (0);
+	return EXIT_SUCCESS;
 }
