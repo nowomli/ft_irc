@@ -24,9 +24,8 @@ Message::Message(char *buf)
             std::string remaining = token;
             while (std::getline(iss, token, ' ')) 
             {
+                remaining += ' ';
                 remaining += token;
-                if (iss.peek() != EOF) 
-                    remaining += ' ';
             }
 			remaining.erase(0,1);
             msgArgs.push_back(remaining);
@@ -37,6 +36,9 @@ Message::Message(char *buf)
 	}
     int len = msgArgs.back().size();
     if (msgArgs.back()[len - 1] == '\n')
+        msgArgs.back().erase(len-1);
+    len = msgArgs.back().size();
+    if (msgArgs.back()[len - 1] == '\r')
         msgArgs.back().erase(len-1);
     len = 0;
 }
