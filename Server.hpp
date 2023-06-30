@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: inovomli <inovomli@student.42.fr>          +#+  +:+       +#+        */
+/*   By: kmorunov <kmorunov@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/17 11:05:15 by inovomli          #+#    #+#             */
-/*   Updated: 2023/06/29 12:27:38 by inovomli         ###   ########.fr       */
+/*   Updated: 2023/06/30 22:00:33 by kmorunov         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,16 +66,13 @@ public:
 
 	void cmdPass(int fd, Message msg);
 	void cmdNick(int fd, Message msg);
-	void cmdUser(int fd, Message msg);
-	void cmdJoin(int fd, Message msg);
-	void cmdPrivmsg(int fd, Message msg);
-	void cmdQuit(int fd, Message msg);
-	void cmdKick(int fd, Message msg);
-	void cmdCap(int fd, Message msg);
-	void cmdMode(int fd, Message msg);
-	void cmdTopic(int fd, Message msg);
-	void cmdInvite(int fd, Message msg);
-					
+	void cmdUser(int fd, Message msg); 
+	void cmdJoin(int fd, Message msg);// 		/join #channel
+	void cmdPrivmsg(int fd, Message msg);// 	/privmsg nickname message
+	void cmdQuit(int fd, Message msg);// 		/quit [message]
+	void cmdKick(int fd, Message msg);// 		/kick #channel nickname
+	void cmdCap(int fd, Message msg); 
+	void cmdMode(int fd, Message msg);// 		/mode #channel|nickname [[+|-]modechars [parameters]]
+	void cmdTopic(int fd, Message msg);// 		/topic #channel newtopic
+	void cmdInvite(int fd, Message msg);//		/invite nickname #channel			
 };
-
-

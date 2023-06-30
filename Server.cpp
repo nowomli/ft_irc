@@ -222,7 +222,10 @@ void Server::processMessage(char *buf, int fd)
 	else if (recMsg.command == "INVITE")
 		cmdInvite(fd, recMsg);
 	else
-		std::cerr << "Unknown command" << std::endl;										
+	{
+		std::cerr << "Unknown command" << std::endl;	
+		std::cout << recMsg.message << std::endl;
+	}									
 	// std::string response = "Server received your message\r\n";
 	// int ret2 = send(fd, response.c_str(), response.size(), 0);
 }
@@ -326,6 +329,7 @@ std::vector<std::string> divideChannelsToJoin(std::string msgprt)
 	return joinChans;
 }
 
+// /join #channel
 void Server::cmdJoin(int fd, Message msg)
 {
 	if (msg.msgArgs.size() < 1)
@@ -366,6 +370,7 @@ void Server::cmdJoin(int fd, Message msg)
 	}
 }
 
+// /privmsg nickname message
 void Server::cmdPrivmsg(int fd, Message msg)
 {
 	std::string resp;
@@ -406,6 +411,7 @@ void Server::cmdPrivmsg(int fd, Message msg)
 	}
 }
 
+//	/quit [message]
 void Server::cmdQuit(int fd, Message msg)
 {
 	int i;
@@ -423,6 +429,7 @@ void Server::cmdQuit(int fd, Message msg)
 	_users.erase(_fds[j].fd);
 }
 
+//	/kick #channel nickname
 void Server::cmdKick(int fd, Message msg)
 {
 	if (msg.msgArgs.size() < 2)
@@ -431,8 +438,6 @@ void Server::cmdKick(int fd, Message msg)
 		// send resp
 		return;
 	}
-
-	// KICK <channel> <nick> [<reason>]
 	std::string chnm = msg.msgArgs[0];
 	std::string targ = msg.msgArgs[1];	
 	if (!IsChannelExist(chnm) || findUserForNick(targ) == -1) // || !IsUserInsideChannel(targ))
@@ -471,6 +476,8 @@ void Server::cmdCap(int fd, Message msg)
 	ret = send(fd, resp.c_str(), resp.size(), 0);	
 }
 
+
+// 	/mode #channel|nickname [[+|-]modechars [parameters]]
 void Server::cmdMode(int fd, Message msg)
 {
 	if (msg.msgArgs.size() < 1)
@@ -484,11 +491,13 @@ void Server::cmdMode(int fd, Message msg)
 
 }
 
+//	/topic #channel newtopic
 void Server::cmdTopic(int fd, Message msg)
 {	
 
 }
 
+//	/invite nickname #channel
 void Server::cmdInvite(int fd, Message msg) 
 {
 	std::string resp;
@@ -499,7 +508,6 @@ void Server::cmdInvite(int fd, Message msg)
 		// send resp
 		return;
 	}
-	// INVITE <nickname> <channel>
 	std::string chnm = msg.msgArgs[1];
 	std::string targ = msg.msgArgs[0];	
 	int newUserfd = findUserForNick(targ);
