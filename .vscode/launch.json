@@ -7,7 +7,7 @@
         {
             "name": "Launch",
             "type": "cppdbg",
-            "program": "${workspaceFolder}/IRC",
+            "program": "${workspaceFolder}/ircserv",
             "args": ["1234", "4321"],
             "cwd": "${workspaceFolder}",
             "request": "launch",
