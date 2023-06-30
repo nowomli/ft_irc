@@ -8,7 +8,7 @@
             "name": "Launch",
             "type": "cppdbg",
             "program": "${workspaceFolder}/ircserv",
-            "args": ["1234", "4321"],
+            "args": ["6668", "hello"],
             "cwd": "${workspaceFolder}",
             "request": "launch",
             "MIMode": "lldb"
