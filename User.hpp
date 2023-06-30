@@ -3,9 +3,9 @@
 #include <iostream>
 #include <string>
 #include <vector>
-// #include "Channel.hpp"
+#include "Channel.hpp"
 
-// class Channel;
+class Channel;
 
 class User
 {
@@ -21,7 +21,8 @@ private:
 	bool isUserNameI;
 
 public:
-	// std::vector<Channel> channels; // map?
+	std::vector<Channel *> channels; // map?
+	std::vector<Channel *> invites;
 
 	User(int socfd);
 	User();
@@ -39,5 +40,6 @@ public:
 	bool getIsPassInput();
 	bool getIsNickInput();
 	bool getIsUserNameI();
+	int getfd();
 };
 

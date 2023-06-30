@@ -5,6 +5,8 @@
 #include <vector>
 
 #include "User.hpp"
+#include <set>
+#include <sys/socket.h>
 
 class User;
 
@@ -13,40 +15,26 @@ class Channel
 private:
 	std::string _channelName;
 	std::vector<User *>	_usersInChannel;	
+	std::vector<User *>	_opersInChannel;
+	std::vector<User *> _invitedUsers;
+	std::set<char> _mode;
+	bool _isInvite;
+
+	// void rmUserFrVector
 public:
 	std::string getChanName();
 	Channel(std::string name);
 	~Channel();
+	bool getIsInvite();
+	void setIsInvite(bool inviteStatus);
 	bool IsUserInsideChannel(std::string nickName);
-	int addUserToChannel(User *newUser);
+	void addUserToChannel(User *newUser);
+	void addOperToChannel(User *newUser);
+	void addUserToInvite(User *newUser);	
+	bool isUserInvite(User checkUser);
+	void remuveUser(User rmUser);
+	bool IsOper(std::string nick);
+
+	void sendToAllUsers(std::string text);
 };
 
-Channel::Channel(std::string name)
-{
-	_channelName = name;
-}
-
-Channel::~Channel()
-{
-}
-
-std::string Channel::getChanName()
-{
-	return (_channelName);
-}
-
-bool Channel::IsUserInsideChannel(std::string nickName)
-{
-	for(int i = 0; i < _usersInChannel.size(); i++)
-	{
-		if (_usersInChannel[i]->getNickname() == nickName)
-			return true;
-	}
-	return false;
-}
-
-int Channel::addUserToChannel(User *newUser)
-{
-
-	return 1;
-}

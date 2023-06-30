@@ -6,7 +6,7 @@
 /*   By: inovomli <inovomli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/18 14:31:25 by inovomli          #+#    #+#             */
-/*   Updated: 2023/06/20 15:48:31 by inovomli         ###   ########.fr       */
+/*   Updated: 2023/06/29 16:05:56 by inovomli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,4 +89,9 @@ bool User::getIsUserNameI()
 void User::setIsPassInput() // ?????
 {
 	isPassInput = true;
+}
+
+int User::getfd()
+{
+	return _client_sockfd;
 }

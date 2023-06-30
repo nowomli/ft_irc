@@ -20,6 +20,9 @@
 		},
 		{
 			"path": "../khirooo_irc"
+		},
+		{
+			"path": "../grademe"
 		}
 	],
 	"settings": {
