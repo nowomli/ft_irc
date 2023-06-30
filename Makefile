@@ -14,7 +14,7 @@ CC = c++
 
 SRCS = main.cpp Channel.cpp Message.cpp Server.cpp User.cpp
 
-NAME =  IRC
+NAME =  ircserv
 
 FLAGS = #-Wall -Wextra -Werror -std=c++98 -fsanitize=address -g
 
