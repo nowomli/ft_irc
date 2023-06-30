@@ -232,9 +232,7 @@ void Server::cmdPass(int fd, Message msg)
 	std::string response;
 	if (!_users[fd].getIsPassInput())
 	{
-		std::string npass = msg.msgArgs[0];
-		int len = npass.size();
-		npass[len-1] = '\0';
+
 		if (_pass == msg.msgArgs[0])
 			_users[fd].setIsPassInput();
 		else 

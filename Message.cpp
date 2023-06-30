@@ -32,9 +32,13 @@ Message::Message(char *buf)
             msgArgs.push_back(remaining);
             break;
         }
-        else 
+        else if (token.size() > 0)
             msgArgs.push_back(token);
 	}
+    int len = msgArgs.back().size();
+    if (msgArgs.back()[len - 1] == '\n')
+        msgArgs.back().erase(len-1);
+    len = 0;
 }
 
 Message::~Message()
