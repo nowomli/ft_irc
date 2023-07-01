@@ -53,6 +53,15 @@ Server::Server(int port, std::string pass): _port(port), _pass(pass)
 	address.sin_family = AF_INET;
 	address.sin_addr.s_addr = htonl(INADDR_ANY);
 	address.sin_port = htons(_port);
+
+	int reuse = 1;
+    if (setsockopt(_servSocket, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse)) == -1) 
+	{
+        std::cerr << "Failed to set SO_REUSEADDR option." << std::endl;
+        close(_servSocket);
+        return;
+    }
+
 	if (bind(_servSocket, (struct sockaddr *)&address, sizeof(address)) < 0)
 	{
 		std::cerr << "bind failed"<< std::endl;
@@ -517,14 +526,24 @@ void Server::cmdMode(int fd, Message msg)
 					// send resp
 					return;
 				}
-				// wrkChnl->addOperToChannel(_users[findUserForNick(msg.msgArgs[2])]);
+				wrkChnl->addOperToChannel(&_users[findUserForNick(msg.msgArgs[2])]);
 			}
 		}
 		else if (flag[0] == '-')
 		{
 			wrkChnl->_mode.erase(flag[1]);
 			if (flag[1] == 'i')
-				wrkChnl->setIsInvite(false);			
+				wrkChnl->setIsInvite(false);		
+			if (flag[1] == 'o')
+			{
+				if (msg.msgArgs.size() < 3)
+				{
+					std::cout << "not enougth args" << std::endl;
+					// send resp
+					return;
+				}
+				wrkChnl->addOperToChannel(&_users[findUserForNick(msg.msgArgs[2])]);
+			}					
 		}
 
 

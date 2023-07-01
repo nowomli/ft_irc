@@ -35,6 +35,7 @@ public:
 	bool isUserInvite(User checkUser);
 	void remuveUser(User rmUser);
 	bool IsOper(std::string nick);
+	void remuveOper(User *rmUser);
 
 	void sendToAllUsers(std::string text);
 	void sendToAllButOneUsers(std::string text, int fd);

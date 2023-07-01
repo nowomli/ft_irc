@@ -109,3 +109,15 @@ void Channel::remuveUser(User rmUser)
 	if (i != _invitedUsers.size())
 		_invitedUsers.erase(_invitedUsers.begin() + i);			
 }
+
+void Channel::remuveOper(User *rmUser)
+{
+	std::string nick = rmUser->getNickname();	
+	// for (int i = 0; i < _opersInChannel.size(); i++)
+	// {
+	// 	if (_opersInChannel[i]->getNickname() == nick)
+	// 		break;
+	// }
+	// if (i != _opersInChannel.size())
+	// 	_opersInChannel.erase(_opersInChannel.begin() + i);	
+}
