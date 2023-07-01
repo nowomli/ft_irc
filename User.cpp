@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   User.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: inovomli <inovomli@student.42.fr>          +#+  +:+       +#+        */
+/*   By: kmorunov <kmorunov@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/18 14:31:25 by inovomli          #+#    #+#             */
-/*   Updated: 2023/06/29 16:05:56 by inovomli         ###   ########.fr       */
+/*   Updated: 2023/06/30 17:49:31 by kmorunov         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,6 @@ User::User(int socfd)
 
 User::User()
 {
-
 }
 
 User::~User()
