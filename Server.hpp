@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: inovomli <inovomli@student.42.fr>          +#+  +:+       +#+        */
+/*   By: kmorunov <kmorunov@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/17 11:05:15 by inovomli          #+#    #+#             */
-/*   Updated: 2023/07/01 18:01:45 by inovomli         ###   ########.fr       */
+/*   Updated: 2023/07/01 19:24:52 by kmorunov         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,10 +24,8 @@
 #include <unistd.h>
 
 #include "User.hpp"
-// #include "Channel.hpp"
 #include "Message.hpp"
-
-
+// #include "Channel.hpp"
 
 #define POLLEVENTS (POLLIN | POLLOUT | POLLERR | POLLHUP | POLLNVAL)
 

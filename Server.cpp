@@ -23,51 +23,54 @@ Server::Server(int port, std::string pass): _port(port), _pass(pass)
 {
 	_run = 1;
 	char name[1000];
+				// Used to retrieve the standard host name 
+				// for the current machine on which the process is running
 	if (gethostname(name, sizeof(name)) == -1)
 	{
-		std::cerr << "Error: gethostname " <<  std::strerror(errno) << std::endl;
+		std::cerr << "\033[1;91mUnable to get a hostname\033[0m"
+		<<  std::strerror(errno) << std::endl;
 		_run = 0;
 		return ;	
 	}
 	_host = std::string(name);
-
-				//Creating IPV4/TCP socket
+				// Creating IPV4/TCP socket
 	_servSocket = socket(AF_INET, SOCK_STREAM, 0);
 	if (_servSocket < 0) 
 	{
-		std::cerr << "socket creation failed" << std::endl;
+		std::cerr << "\033[1;91mUnable to create an endpoint\033[0m" << std::endl;
 		_run = 0;
 		return ;
 	}	
-				//Setting to non-blocking mode
+				// Used to change the file status flags 
+				// of the socket file descriptor _servSocket
+				// sets descriptor to non-blocking mode
 	if (fcntl(_servSocket, F_SETFL, O_NONBLOCK) < 0)
 	{
-		std::cerr << "fnctl function failed" << std::endl;
+		std::cerr << "\033[1;91Unale to set the file descriptor to non-blocking mode\033[0m" << std::endl;
 		_run = 0;
 		return ;		
 	}
-
 				//Binding socket with IP and PORT
 	struct sockaddr_in address;
 	// memset(&address, 0, sizeof(address)); // test isnesessary
 	address.sin_family = AF_INET;
 	address.sin_addr.s_addr = htonl(INADDR_ANY);
 	address.sin_port = htons(_port);
+				// Associates a local address with a socket
 	if (bind(_servSocket, (struct sockaddr *)&address, sizeof(address)) < 0)
 	{
-		std::cerr << "bind failed"<< std::endl;
+		std::cerr << "\033[1;91mBind failed\033[0m"<< std::endl;
 		_run = 0;
 		return ;		
 	}
-
-				//Listening for connections
+				// Marks a socket as a passive socket
+				// i.e., a socket that will be used to accept incoming connections
 	if (listen(_servSocket, 42) < 0) 
 	{
-		std::cerr << "listen failed" << std::endl;
+		std::cerr << "\033[1;91mListen failed\033[0m" << std::endl;
 		_run = 0;		
 		return ;
 	}
-
 	struct pollfd serv_poll;
 	serv_poll.fd = _servSocket;
 	serv_poll.events = POLLEVENTS;
@@ -77,10 +80,12 @@ Server::Server(int port, std::string pass): _port(port), _pass(pass)
 
 void Server::process()
 {
+				// Monitors multiple file descriptors, to see if some of them are ready for I/O operations
+				// Timeout value -1 means poll() will block indefinitely until one of the file descriptors is ready
 	int pollRes = poll(&_fds[0], _fds.size(), -1);
 	if (pollRes == -1)
 	{
-		std::cerr << "poll failed" << std::endl;
+		std::cerr << "\033[1;91mPoll error occurred\033[0m" << std::endl;
 		_run = 0;		
 		return ;
 	}	
@@ -100,7 +105,7 @@ void Server::process()
 		}
 		else if (_fds[i].revents & (POLLHUP | POLLERR | POLLNVAL))
 		{
-			std::cout << "disconnecting2" << std::endl;
+			std::cout << "\033[1;94mDiconnecting from server...\033[0m" << std::endl;
 			close(_fds[i].fd);
 			_fds.erase(_fds.begin() + i);	
 			_users.erase(_fds[i].fd);	
@@ -135,7 +140,7 @@ void Server::newUser()
 	_fds.push_back(nPollFd);
 	User nUser(sockfd);
 	_users.insert(std::pair<int, User>(sockfd, nUser));
-	std::cout << "new user" << _users.size() << std::endl;	
+	std::cerr << "\033[1;94mNew user [" << _users.size() << "] has been created\033[0m" << std::endl;
 }
 
 void Server::handleMessage(int fd, int ind)
@@ -517,7 +522,7 @@ void Server::cmdMode(int fd, Message msg)
 					// send resp
 					return;
 				}
-				wrkChnl->addOperToChannel(_users[findUserForNick(msg.msgArgs[2])]);
+				// wrkChnl->addOperToChannel(_users[findUserForNick(msg.msgArgs[2])]);
 			}
 		}
 		else if (flag[0] == '-')
