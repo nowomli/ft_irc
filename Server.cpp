@@ -22,7 +22,6 @@ Server::~Server()
 Server::Server(int port, std::string pass): _port(port), _pass(pass)
 {
 	_run = 1;
-
 	char name[1000];
 	if (gethostname(name, sizeof(name)) == -1)
 	{
@@ -205,22 +204,28 @@ void Server::processMessage(char *buf, int fd)
 		}
 		return ;
 	}
-	if (recMsg.command == "JOIN")
+	if (recMsg.command == "JOIN") // upgrade
 		cmdJoin(fd, recMsg);
-	else if (recMsg.command == "PRIVMSG")
+	else if (recMsg.command == "PRIVMSG") 
 		cmdPrivmsg(fd, recMsg);
 	else if (recMsg.command == "QUIT")
 		cmdQuit(fd, recMsg);
-	else if (recMsg.command == "KICK")
+	else if (recMsg.command == "KICK") // don't work correct
 		cmdKick(fd, recMsg);
 	else if (recMsg.command == "CAP")
 		cmdCap(fd, recMsg);
 	else if (recMsg.command == "MODE")
 		cmdMode(fd, recMsg);
-	else if (recMsg.command == "TOPIC")
+	else if (recMsg.command == "TOPIC") // !!!!!!!!!!!!!!!!
 		cmdTopic(fd, recMsg);
-	else if (recMsg.command == "INVITE")
+	else if (recMsg.command == "INVITE") // not checked
 		cmdInvite(fd, recMsg);
+	// else if (recMsg.command == "WHO") 
+	// 	cmdWho(fd, recMsg);	
+	// else if (recMsg.command == "NOTICE")
+	// 	cmdNotice(fd, recMsg);		
+	// else if (recMsg.command == "PING")
+	// 	cmdPing(fd, recMsg);	
 	else
 		std::cerr << "Unknown command" << std::endl;										
 	// std::string response = "Server received your message\r\n";
@@ -389,9 +394,8 @@ void Server::cmdPrivmsg(int fd, Message msg)
 		// sendToChannel(msg);
 		Channel *wrkChnl = recieveChannel(targ);		
 		resp = ":"+_users[fd].getNickname()+" PRIVMSG "+targ+" :"+msg.msgArgs[1]+"\r\n";		
-		// for(int i = 0; i < wrkChnl->_usersInChannel.size(); i++)
-		// 	ret = send(wrkChnl->_usersInChannel[i].getfd(), resp.c_str(), resp.size(), 0);		
-		wrkChnl->sendToAllUsers(resp);
+		// wrkChnl->sendToAllUsers(resp);
+		wrkChnl->sendToAllButOneUsers(resp, fd);
 	}
 	else
 	{
@@ -423,7 +427,7 @@ void Server::cmdQuit(int fd, Message msg)
 	_users.erase(_fds[j].fd);
 }
 
-void Server::cmdKick(int fd, Message msg)
+void Server::cmdKick(int fd, Message msg) // don't work
 {
 	if (msg.msgArgs.size() < 2)
 	{
@@ -457,8 +461,6 @@ void Server::cmdKick(int fd, Message msg)
 
 	// send to channel
 	Channel *wrkChnl = recieveChannel(targ);		
-	// for(int i = 0; i < wrkChnl->_usersInChannel.size(); i++)
-	// 	ret = send(wrkChnl->_usersInChannel[i].getfd(), resp.c_str(), resp.size(), 0);	
 	wrkChnl->sendToAllUsers(resp);
 	recieveChannel(chnm)->remuveUser(findUserForNick(targ));	
 }
@@ -473,15 +475,58 @@ void Server::cmdCap(int fd, Message msg)
 
 void Server::cmdMode(int fd, Message msg)
 {
-	if (msg.msgArgs.size() < 1)
+	// MODE <channel> <flags> [<args>]
+	if (msg.msgArgs.size() < 2)
 	{
 		std::cout << "not enougth args" << std::endl;
 		// send resp
 		return;
 	}
 
-	std::string dest = msg.msgArgs[0]; // ((((((
+	std::string chnm = msg.msgArgs[0];
+	if(!IsChannelExist(chnm))
+	{
+		// no channel
+		return;
+	}
+	Channel *wrkChnl = recieveChannel(chnm);
+	std::string flag = msg.msgArgs[1];
+	if (flag.size() < 2)
+	{
+		// incorrect size
+		return;
+	}
+	if (wrkChnl->IsOper(_users[fd].getNickname()))
+	{
+		if (flag[0] == '+')
+		{
+			wrkChnl->_mode.insert(flag[1]);
+			if (flag[1] == 'i')
+				wrkChnl->setIsInvite(true);
+			if (flag[1] == 'o')
+			{
+				if (msg.msgArgs.size() < 3)
+				{
+					std::cout << "not enougth args" << std::endl;
+					// send resp
+					return;
+				}
+				wrkChnl->addOperToChannel(_users[findUserForNick(msg.msgArgs[2])]);
+			}
+		}
+		else if (flag[0] == '-')
+		{
+			wrkChnl->_mode.erase(flag[1]);
+			if (flag[1] == 'i')
+				wrkChnl->setIsInvite(false);			
+		}
 
+
+	}
+	else
+	{
+		// you can't cnage this chanel
+	}
 }
 
 void Server::cmdTopic(int fd, Message msg)
@@ -518,7 +563,5 @@ void Server::cmdInvite(int fd, Message msg)
 	wrkChnl->addUserToInvite(&_users[newUserfd]);	
 	resp = ": 341 " + _users[fd].getNickname() + " " + targ + " " + chnm + "\r\n";
 	ret = send(findUserForNick(targ), resp.c_str(), resp.size(), 0);	
-	// for(int i = 0; i < wrkChnl->_usersInChannel.size(); i++)
-	// 	ret = send(wrkChnl->_usersInChannel[i].getfd(), resp.c_str(), resp.size(), 0);	
 	wrkChnl->sendToAllUsers(resp);
 }

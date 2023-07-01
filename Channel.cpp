@@ -76,6 +76,13 @@ void Channel::sendToAllUsers(std::string text)
 		send(_usersInChannel[i]->getfd(), text.c_str(), text.size(), 0);		
 }
 
+void Channel::sendToAllButOneUsers(std::string text, int fd)
+{
+	for(int i = 0; i < _usersInChannel.size(); i++)
+		if (_usersInChannel[i]->getfd() != fd)
+		send(_usersInChannel[i]->getfd(), text.c_str(), text.size(), 0);
+}
+
 void Channel::remuveUser(User rmUser)
 {
 	std::string nick = rmUser.getNickname();

@@ -17,11 +17,12 @@ private:
 	std::vector<User *>	_usersInChannel;	
 	std::vector<User *>	_opersInChannel;
 	std::vector<User *> _invitedUsers;
-	std::set<char> _mode;
+
 	bool _isInvite;
 
 	// void rmUserFrVector
 public:
+	std::set<char> _mode;
 	std::string getChanName();
 	Channel(std::string name);
 	~Channel();
@@ -36,5 +37,6 @@ public:
 	bool IsOper(std::string nick);
 
 	void sendToAllUsers(std::string text);
+	void sendToAllButOneUsers(std::string text, int fd);
 };
 
