@@ -220,8 +220,8 @@ void Server::processMessage(char *buf, int fd)
 		cmdTopic(fd, recMsg);
 	else if (recMsg.command == "INVITE") // not checked
 		cmdInvite(fd, recMsg);
-	// else if (recMsg.command == "WHO") 
-	// 	cmdWho(fd, recMsg);	
+	else if (recMsg.command == "BOT") 
+		_bot.processMsg(fd, recMsg.message);
 	// else if (recMsg.command == "NOTICE")
 	// 	cmdNotice(fd, recMsg);		
 	// else if (recMsg.command == "PING")
@@ -517,7 +517,7 @@ void Server::cmdMode(int fd, Message msg)
 					// send resp
 					return;
 				}
-				wrkChnl->addOperToChannel(_users[findUserForNick(msg.msgArgs[2])]);
+				// wrkChnl->addOperToChannel(_users[findUserForNick(msg.msgArgs[2])]);
 			}
 		}
 		else if (flag[0] == '-')
