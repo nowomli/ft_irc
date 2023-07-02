@@ -113,11 +113,20 @@ void Channel::remuveUser(User rmUser)
 void Channel::remuveOper(User *rmUser)
 {
 	std::string nick = rmUser->getNickname();	
-	// for (int i = 0; i < _opersInChannel.size(); i++)
-	// {
-	// 	if (_opersInChannel[i]->getNickname() == nick)
-	// 		break;
-	// }
-	// if (i != _opersInChannel.size())
-	// 	_opersInChannel.erase(_opersInChannel.begin() + i);	
+	int i;
+	for (i = 0; i < _opersInChannel.size(); i++)
+	{
+		if (_opersInChannel[i]->getNickname() == nick)
+			break;
+	}
+	if (i != _opersInChannel.size())
+		_opersInChannel.erase(_opersInChannel.begin() + i);	
+}
+
+std::string	Channel::getModeStr()
+{
+	std::string res = "";	
+	for (std::set<char>::iterator it = _mode.begin(); it != _mode.end(); it++)
+		res.push_back(*it);
+	return res;
 }

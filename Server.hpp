@@ -6,7 +6,7 @@
 /*   By: inovomli <inovomli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/17 11:05:15 by inovomli          #+#    #+#             */
-/*   Updated: 2023/07/01 20:40:59 by inovomli         ###   ########.fr       */
+/*   Updated: 2023/07/02 13:53:17 by inovomli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,4 +77,6 @@ public:
 	void cmdMode(int fd, Message msg);// 		/mode #channel|nickname [[+|-]modechars [parameters]]
 	void cmdTopic(int fd, Message msg);// 		/topic #channel newtopic
 	void cmdInvite(int fd, Message msg);//		/invite nickname #channel			
+
+	void cmdPing(int fd, Message msg);	
 };

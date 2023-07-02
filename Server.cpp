@@ -23,13 +23,10 @@ Server::Server(int port, std::string pass): _port(port), _pass(pass)
 {
 	_run = 1;
 	char name[1000];
-	if (gethostname(name, sizeof(name)) == -1)
-	{
-		std::cerr << "Error: gethostname " <<  std::strerror(errno) << std::endl;
-		_run = 0;
-		return ;	
-	}
-	_host = std::string(name);
+	if (gethostname(name, sizeof(name)) != -1)
+		_host = std::string(name);
+	else
+		_host = "localhost";
 
 				//Creating IPV4/TCP socket
 	_servSocket = socket(AF_INET, SOCK_STREAM, 0);
@@ -219,13 +216,13 @@ void Server::processMessage(char *buf, int fd)
 		cmdPrivmsg(fd, recMsg);
 	else if (recMsg.command == "QUIT")
 		cmdQuit(fd, recMsg);
-	else if (recMsg.command == "KICK") // don't work correct
+	else if (recMsg.command == "KICK") // don't work correct !!!!!!!!!!!!!!!!
 		cmdKick(fd, recMsg);
 	else if (recMsg.command == "CAP")
 		cmdCap(fd, recMsg);
-	else if (recMsg.command == "MODE")
+	else if (recMsg.command == "MODE") // not checked
 		cmdMode(fd, recMsg);
-	else if (recMsg.command == "TOPIC") // !!!!!!!!!!!!!!!!
+	else if (recMsg.command == "TOPIC") 
 		cmdTopic(fd, recMsg);
 	else if (recMsg.command == "INVITE") // not checked
 		cmdInvite(fd, recMsg);
@@ -233,8 +230,12 @@ void Server::processMessage(char *buf, int fd)
 		_bot.processMsg(fd, recMsg.message);
 	// else if (recMsg.command == "NOTICE")
 	// 	cmdNotice(fd, recMsg);		
-	// else if (recMsg.command == "PING")
-	// 	cmdPing(fd, recMsg);	
+	else if (recMsg.command == "PING")
+		cmdPing(fd, recMsg);	
+	// else if (recMsg.command == "WHO")
+	// 	cmdWHO(fd, recMsg);		
+	// else if (recMsg.command == "NAMES")
+	// 	cmdWHO(fd, recMsg);			
 	else
 	{
 		std::cerr << "Unknown command" << std::endl;	
@@ -242,6 +243,12 @@ void Server::processMessage(char *buf, int fd)
 	}									
 	// std::string response = "Server received your message\r\n";
 	// int ret2 = send(fd, response.c_str(), response.size(), 0);
+}
+
+void Server::cmdPing(int fd, Message msg)
+{
+	response = ":" + _host + " PONG " + _host + " :" + msg.msgArgs[0] +"\r\n";
+	send(fd, response.c_str(), response.size(), 0);		
 }
 
 void Server::cmdPass(int fd, Message msg)
@@ -497,13 +504,14 @@ void Server::cmdMode(int fd, Message msg)
 		// send resp
 		return;
 	}
-
 	std::string chnm = msg.msgArgs[0];
 	if(!IsChannelExist(chnm))
 	{
 		// no channel
 		return;
 	}
+	std::string resp;
+	int ret;	
 	Channel *wrkChnl = recieveChannel(chnm);
 	std::string flag = msg.msgArgs[1];
 	if (flag.size() < 2)
@@ -526,7 +534,8 @@ void Server::cmdMode(int fd, Message msg)
 					// send resp
 					return;
 				}
-				wrkChnl->addOperToChannel(&_users[findUserForNick(msg.msgArgs[2])]);
+				if (findUserForNick(msg.msgArgs[2]) != -1)
+					wrkChnl->addOperToChannel(&_users[findUserForNick(msg.msgArgs[2])]);
 			}
 		}
 		else if (flag[0] == '-')
@@ -542,11 +551,12 @@ void Server::cmdMode(int fd, Message msg)
 					// send resp
 					return;
 				}
-				wrkChnl->addOperToChannel(&_users[findUserForNick(msg.msgArgs[2])]);
+				if (findUserForNick(msg.msgArgs[2]) != -1)
+					wrkChnl->remuveOper(&_users[findUserForNick(msg.msgArgs[2])]);
 			}					
 		}
-
-
+		resp = ": 324"+_users[fd].getNickname()+" "+wrkChnl->getChanName()+" "+wrkChnl->getModeStr()+"\r\n";
+		ret = send(fd, resp.c_str(), resp.size(), 0);			
 	}
 	else
 	{
@@ -557,7 +567,26 @@ void Server::cmdMode(int fd, Message msg)
 //	/topic #channel newtopic
 void Server::cmdTopic(int fd, Message msg)
 {	
+	std::string resp;
+	int ret;
+	if (msg.msgArgs.size() < 1)
+	{
+		std::cout << "not enougth args" << std::endl;
+		// send resp
+		return;
+	}
+	std::string chnm = msg.msgArgs[0];
+	std::string topic;
+	if (msg.msgArgs.size() > 1)
+		topic = msg.msgArgs[1];
+	if(!IsChannelExist(chnm))
+	{
+		// no channel
+		return;
+	}		
+	Channel *wrkChnl = recieveChannel(chnm);
 
+	
 }
 
 //	/invite nickname #channel
