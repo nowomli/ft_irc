@@ -17,10 +17,11 @@ private:
 	std::vector<User *>	_usersInChannel;	
 	std::vector<User *>	_opersInChannel;
 	std::vector<User *> _invitedUsers;
-	std::string _topic;
+
 	bool _isInvite;
 	// void rmUserFrVector
 public:
+	std::string _topic;
 	std::set<char> _mode;
 	std::string getChanName();
 	Channel(std::string name);
@@ -39,5 +40,6 @@ public:
 	void sendToAllUsers(std::string text);
 	void sendToAllButOneUsers(std::string text, int fd);
 	std::string	getModeStr();
+	std::string getClientsNick();
 };
 

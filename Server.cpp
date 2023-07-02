@@ -216,37 +216,134 @@ void Server::processMessage(char *buf, int fd)
 		cmdPrivmsg(fd, recMsg);
 	else if (recMsg.command == "QUIT")
 		cmdQuit(fd, recMsg);
-	else if (recMsg.command == "KICK") // don't work correct !!!!!!!!!!!!!!!!
+	else if (recMsg.command == "KICK") 
 		cmdKick(fd, recMsg);
 	else if (recMsg.command == "CAP")
 		cmdCap(fd, recMsg);
-	else if (recMsg.command == "MODE") // not checked
+	else if (recMsg.command == "MODE") 
 		cmdMode(fd, recMsg);
 	else if (recMsg.command == "TOPIC") 
 		cmdTopic(fd, recMsg);
-	else if (recMsg.command == "INVITE") // not checked
+	else if (recMsg.command == "INVITE") 
 		cmdInvite(fd, recMsg);
 	else if (recMsg.command == "BOT") 
 		_bot.processMsg(fd, recMsg.message);
-	// else if (recMsg.command == "NOTICE")
-	// 	cmdNotice(fd, recMsg);		
+	else if (recMsg.command == "NOTICE")
+		cmdNotice(fd, recMsg);		
 	else if (recMsg.command == "PING")
 		cmdPing(fd, recMsg);	
-	// else if (recMsg.command == "WHO")
-	// 	cmdWHO(fd, recMsg);		
-	// else if (recMsg.command == "NAMES")
-	// 	cmdWHO(fd, recMsg);			
+	else if (recMsg.command == "WHO")
+		cmdWho(fd, recMsg);			
 	else
 	{
-		std::cerr << "Unknown command" << std::endl;	
-		std::cout << recMsg.message << std::endl;
+		// std::cerr << "Unknown command" << std::endl;	
+		// std::cout << recMsg.message << std::endl;
 	}									
 	// std::string response = "Server received your message\r\n";
 	// int ret2 = send(fd, response.c_str(), response.size(), 0);
 }
 
+// WHO [<name> ["o"]]
+void Server::cmdWho(int fd, Message msg)
+{
+	std::string resp;
+	int ret;
+	if (msg.msgArgs.size() == 0)
+	{
+		for (int i = 1; i <_fds.size(); i++)
+		{
+			// _users[_fds[i].fd].getNickname()
+			resp = "352"+_users[fd].getNickname()+" *"+_users[_fds[i].fd].getUsername() +
+				" * ft_irc " + _users[_fds[i].fd].getNickname() + " H :0 " + _users[_fds[i].fd].getRealname()+"\r\n";
+			ret = send(fd, resp.c_str(), resp.size(), 0);				
+		}
+	} 
+	else if (msg.msgArgs.size() == 1)
+	{
+		std::string dist = msg.msgArgs[0];
+		if (!IsChannelExist(dist))
+		{
+            // sender.sendResponse("403 " + sender.getNickname() + " " + target + " :No such channel");
+			return ;
+		}
+		// sendToChannel(msg);
+		Channel *wrkChnl = recieveChannel(dist);
+		for (int i = 1; i <_fds.size(); i++)
+		{
+			if (wrkChnl->IsUserInsideChannel(_users[_fds[i].fd].getNickname()))
+			{
+				resp = "352"+_users[fd].getNickname()+" "+ wrkChnl->getChanName()+ " " +_users[_fds[i].fd].getUsername() +
+					" * ft_irc " + _users[_fds[i].fd].getNickname() + " H :0 " + _users[_fds[i].fd].getRealname()+"\r\n";
+				ret = send(fd, resp.c_str(), resp.size(), 0);		
+			}
+		}		
+	} 
+	else if ((msg.msgArgs.size() == 2) && (msg.msgArgs[1] == "o")) 
+	{
+		std::string dist = msg.msgArgs[0];
+		if (!IsChannelExist(dist))
+		{
+            // sender.sendResponse("403 " + sender.getNickname() + " " + target + " :No such channel");
+			return ;
+		}
+		// sendToChannel(msg);
+		Channel *wrkChnl = recieveChannel(dist);
+		for (int i = 1; i <_fds.size(); i++)
+		{
+			if (wrkChnl->IsOper(_users[_fds[i].fd].getNickname()))
+			{
+				resp = "352"+_users[fd].getNickname()+" "+ wrkChnl->getChanName()+ " " +_users[_fds[i].fd].getUsername() +
+					" * ft_irc " + _users[_fds[i].fd].getNickname() + " H :0 " + _users[_fds[i].fd].getRealname()+"\r\n";
+				ret = send(fd, resp.c_str(), resp.size(), 0);		
+			}
+		}	
+	}
+	resp = "315 * :" + _users[fd].getNickname() + "\r\n";
+	ret = send(fd, resp.c_str(), resp.size(), 0);	
+}
+
+// NOTICE <msgtarget> <message>
+void Server::cmdNotice(int fd, Message msg)
+{
+	std::string resp;
+	int ret;
+	if (msg.msgArgs.size() < 2)
+	{
+		std::cout << "not enough args" << std::endl;
+		// send resp
+		return;
+	}
+	std::string dist = msg.msgArgs[0];
+
+	if (dist[0] == '#')
+	{
+		if (!IsChannelExist(dist))
+		{
+            // sender.sendResponse("403 " + sender.getNickname() + " " + target + " :No such channel");
+			return ;
+		}
+		// sendToChannel(msg);
+		Channel *wrkChnl = recieveChannel(dist);		
+		resp = ":"+_users[fd].getNickname()+" PRIVMSG "+dist+" :"+msg.msgArgs[1]+"\r\n";		
+		// wrkChnl->sendToAllUsers(resp);
+		wrkChnl->sendToAllButOneUsers(resp, fd);
+	}
+	else
+	{
+		if (findUserForNick(dist) == -1)
+		{
+
+			return ;
+		}
+		// sendToUser(msg);
+		resp = ":"+_users[fd].getNickname()+" PRIVMSG "+dist+" :"+msg.msgArgs[1]+"\r\n";
+		ret = send(findUserForNick(dist), resp.c_str(), resp.size(), 0);		
+	}	
+}
+
 void Server::cmdPing(int fd, Message msg)
 {
+	std::string response;
 	response = ":" + _host + " PONG " + _host + " :" + msg.msgArgs[0] +"\r\n";
 	send(fd, response.c_str(), response.size(), 0);		
 }
@@ -272,7 +369,9 @@ void Server::cmdPass(int fd, Message msg)
 void Server::cmdNick(int fd, Message msg)
 {
 	std::string resp;
-	std::cout << msg.msgArgs[0] << std::endl;
+	// std::cout << msg.msgArgs[0] << std::endl;
+	if (msg.msgArgs[0].size() == 0)
+		return;
 	if (findUserForNick(msg.msgArgs[0]) == -1)
 	{
 		_users[fd].setNickname(msg.msgArgs[0]);
@@ -355,7 +454,7 @@ void Server::cmdJoin(int fd, Message msg)
 {
 	if (msg.msgArgs.size() < 1)
 	{
-		std::cout << "not enougth args" << std::endl;
+		std::cout << "not enough args" << std::endl;
 		// send resp
 		return;
 	}
@@ -369,7 +468,7 @@ void Server::cmdJoin(int fd, Message msg)
 		if (recieveChannel(chnm)->getIsInvite()
 			&& !recieveChannel(chnm)->isUserInvite(_users[fd]))
 		{
-			resp = ":"+_host+" 473 "+_users[fd].getNickname()+" "+chnm+" :Cannot join channel (invite only)";
+			resp = ":"+_host+" 473 "+_users[fd].getNickname()+" "+chnm+" :Cannot join channel (invite only)\r\n";
 			ret = send(fd, resp.c_str(), resp.size(), 0);				
 			return;
 		}
@@ -377,6 +476,17 @@ void Server::cmdJoin(int fd, Message msg)
 			return;
 		recieveChannel(chnm)->addUserToChannel(&_users[fd]);
 		resp = ":"+_users[fd].getNickname()+" JOIN :"+chnm+"\r\n";
+		ret = send(fd, resp.c_str(), resp.size(), 0);			
+
+		if (recieveChannel(chnm)->_topic != "")
+		{
+			resp = ": 332 "+_users[fd].getNickname()+ " "+chnm+" :" + recieveChannel(chnm)->_topic +"\r\n";
+			ret = send(fd, resp.c_str(), resp.size(), 0);	
+		}
+
+		resp = "353"+_users[fd].getNickname()+" = "+chnm+ " :"+ recieveChannel(chnm)->getClientsNick() + "\r\n";
+		ret = send(fd, resp.c_str(), resp.size(), 0);	
+		resp = "366 "+_users[fd].getNickname()+ " "+chnm+" :END of NAMES list\r\n";
 		ret = send(fd, resp.c_str(), resp.size(), 0);			
 	}
 	else
@@ -387,7 +497,12 @@ void Server::cmdJoin(int fd, Message msg)
 		_users[fd].channels.push_back(&newChl);
 		_channels.push_back(newChl);
 		resp = ":"+_users[fd].getNickname()+" JOIN :"+chnm+"\r\n";
-		ret = send(fd, resp.c_str(), resp.size(), 0);		
+		ret = send(fd, resp.c_str(), resp.size(), 0);	
+
+		resp = ": 353"+_users[fd].getNickname()+" = "+chnm+ " :"+ newChl.getClientsNick() + "\r\n";
+		ret = send(fd, resp.c_str(), resp.size(), 0);	
+		resp = ": 366 "+_users[fd].getNickname()+ " "+chnm+" :END of NAMES list\r\n";
+		ret = send(fd, resp.c_str(), resp.size(), 0);	
 	}
 }
 
@@ -399,7 +514,7 @@ void Server::cmdPrivmsg(int fd, Message msg)
 
 	if (msg.msgArgs.size() < 2)
 	{
-		std::cout << "not enougth args" << std::endl;
+		std::cout << "not enough args" << std::endl;
 		// send resp
 		return;
 	}
@@ -449,11 +564,12 @@ void Server::cmdQuit(int fd, Message msg)
 	_users.erase(_fds[j].fd);
 }
 
+//kick #channel nickname
 void Server::cmdKick(int fd, Message msg) // don't work
 {
 	if (msg.msgArgs.size() < 2)
 	{
-		std::cout << "not enougth args" << std::endl;
+		std::cout << "not enough args" << std::endl;
 		// send resp
 		return;
 	}
@@ -466,7 +582,7 @@ void Server::cmdKick(int fd, Message msg) // don't work
 	}
 	if (!recieveChannel(chnm)->IsOper(_users[fd].getNickname()))
 	{
-		// not enougth rules
+		// not enough rules
 		return;
 	}
 
@@ -477,12 +593,12 @@ void Server::cmdKick(int fd, Message msg) // don't work
 		resp = ":" + _users[fd].getNickname() + " KICK " + chnm + " " + targ + " :" + msg.msgArgs[2]+"\r\n";
 	else
 		resp = ":" + _users[fd].getNickname() + " KICK " + chnm + " " + targ + " :" +"\r\n";
-	ret = send(findUserForNick(targ), resp.c_str(), resp.size(), 0);
+	ret = send(fd, resp.c_str(), resp.size(), 0);
 
 	// send to channel
-	Channel *wrkChnl = recieveChannel(targ);		
+	Channel *wrkChnl = recieveChannel(chnm);		
 	wrkChnl->sendToAllUsers(resp);
-	recieveChannel(chnm)->remuveUser(findUserForNick(targ));	
+	recieveChannel(chnm)->remuveUser(_users[findUserForNick(targ)]);	
 }
 
 void Server::cmdCap(int fd, Message msg)
@@ -498,9 +614,9 @@ void Server::cmdCap(int fd, Message msg)
 void Server::cmdMode(int fd, Message msg)
 {
 	// MODE <channel> <flags> [<args>]
-	if (msg.msgArgs.size() < 2)
+	if (msg.msgArgs.size() < 1)
 	{
-		std::cout << "not enougth args" << std::endl;
+		std::cout << "not enough args" << std::endl;
 		// send resp
 		return;
 	}
@@ -513,14 +629,21 @@ void Server::cmdMode(int fd, Message msg)
 	std::string resp;
 	int ret;	
 	Channel *wrkChnl = recieveChannel(chnm);
-	std::string flag = msg.msgArgs[1];
-	if (flag.size() < 2)
+	if (msg.msgArgs.size() == 1)
 	{
-		// incorrect size
-		return;
+		resp = ": 324"+_users[fd].getNickname()+" "+wrkChnl->getChanName()+" "+wrkChnl->getModeStr()+"\r\n";
+		ret = send(fd, resp.c_str(), resp.size(), 0);	
+		// resp = ": 329"+_users[fd].getNickname()+" "+wrkChnl->getChanName()+" "+wrkChnl->getModeStr()+"\r\n";
+		// ret = send(fd, resp.c_str(), resp.size(), 0);		
 	}
-	if (wrkChnl->IsOper(_users[fd].getNickname()))
+	else if (wrkChnl->IsOper(_users[fd].getNickname()))
 	{
+		std::string flag = msg.msgArgs[1];
+		if (flag.size() < 2)
+		{
+			// incorrect size
+			return;
+		}		
 		if (flag[0] == '+')
 		{
 			wrkChnl->_mode.insert(flag[1]);
@@ -530,7 +653,7 @@ void Server::cmdMode(int fd, Message msg)
 			{
 				if (msg.msgArgs.size() < 3)
 				{
-					std::cout << "not enougth args" << std::endl;
+					std::cout << "not enough args" << std::endl;
 					// send resp
 					return;
 				}
@@ -547,7 +670,7 @@ void Server::cmdMode(int fd, Message msg)
 			{
 				if (msg.msgArgs.size() < 3)
 				{
-					std::cout << "not enougth args" << std::endl;
+					std::cout << "not enough args" << std::endl;
 					// send resp
 					return;
 				}
@@ -571,12 +694,12 @@ void Server::cmdTopic(int fd, Message msg)
 	int ret;
 	if (msg.msgArgs.size() < 1)
 	{
-		std::cout << "not enougth args" << std::endl;
+		std::cout << "not enough args" << std::endl;
 		// send resp
 		return;
 	}
 	std::string chnm = msg.msgArgs[0];
-	std::string topic;
+	std::string topic = "";
 	if (msg.msgArgs.size() > 1)
 		topic = msg.msgArgs[1];
 	if(!IsChannelExist(chnm))
@@ -586,7 +709,17 @@ void Server::cmdTopic(int fd, Message msg)
 	}		
 	Channel *wrkChnl = recieveChannel(chnm);
 
-	
+	if (wrkChnl->_mode.find('t') != wrkChnl->_mode.end() 
+		&& !wrkChnl->IsOper(_users[fd].getNickname()))
+	{
+		// not enouth rules;
+	}
+	else
+	{
+		wrkChnl->_topic = topic;
+		resp = ":"+_users[fd].getNickname()+" TOPIC"+wrkChnl->getChanName()+" :"+topic+"\r\n";
+		ret = send(fd, resp.c_str(), resp.size(), 0);		
+	}	
 }
 
 //	/invite nickname #channel
@@ -596,7 +729,7 @@ void Server::cmdInvite(int fd, Message msg)
 	int ret;
 	if (msg.msgArgs.size() < 1)
 	{
-		std::cout << "not enougth args" << std::endl;
+		std::cout << "not enough args" << std::endl;
 		// send resp
 		return;
 	}
@@ -611,7 +744,7 @@ void Server::cmdInvite(int fd, Message msg)
 	}	
 	if (!wrkChnl->IsOper(_users[fd].getNickname()))
 	{
-		// not enougth rules
+		// not enough rules
 		return;
 	}	
 
