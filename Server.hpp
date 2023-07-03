@@ -6,7 +6,7 @@
 /*   By: inovomli <inovomli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/17 11:05:15 by inovomli          #+#    #+#             */
-/*   Updated: 2023/07/02 17:10:59 by inovomli         ###   ########.fr       */
+/*   Updated: 2023/07/03 11:19:04 by inovomli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,5 +80,6 @@ public:
 
 	void cmdPing(int fd, Message msg);	
 	void cmdNotice(int fd, Message msg);	
-	void cmdWho(int fd, Message msg);			
+	void cmdWho(int fd, Message msg);	
+	std::vector<std::string> devideChNames(std::string chnmArg);
 };
