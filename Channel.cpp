@@ -8,6 +8,7 @@ Channel::Channel(std::string name)
     // _mode.insert('t');	
 	_topic = "";
 	chanLimit = -1;
+	key = "";
 }
 
 Channel::~Channel()

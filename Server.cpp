@@ -699,6 +699,16 @@ void Server::cmdMode(int fd, Message msg)
 				if (std::atoi(msg.msgArgs[2].c_str()) > 1)
 					wrkChnl->chanLimit = std::atoi(msg.msgArgs[2].c_str());
 			}
+			if (flag[1] == 'k')
+			{
+				if (msg.msgArgs.size() < 3)
+				{
+					std::cout << "not enough args" << std::endl;
+					// send resp
+					return;
+				}
+				wrkChnl->key = msg.msgArgs[2];
+			}			
 		}
 		else if (flag[0] == '-')
 		{
@@ -718,7 +728,8 @@ void Server::cmdMode(int fd, Message msg)
 			}			
 			if (flag[1] == 'l')
 				wrkChnl->chanLimit = -1;
-
+			if (flag[1] == 'k')
+				wrkChnl->chanLimit = "";
 		}
 		resp = ": 324"+_users[fd].getNickname()+" "+wrkChnl->getChanName()+" "+wrkChnl->getModeStr()+"\r\n";
 		ret = send(fd, resp.c_str(), resp.size(), 0);			

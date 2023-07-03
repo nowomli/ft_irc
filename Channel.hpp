@@ -24,6 +24,7 @@ public:
 	std::string _topic;
 	std::set<char> _mode;
 	int chanLimit ;
+	std::string key;
 
 	std::string getChanName();
 	Channel(std::string name);
