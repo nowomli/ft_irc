@@ -487,6 +487,10 @@ void Server::cmdJoin(int fd, Message msg)
 		chnm = chForJoin[i];
 		if (IsChannelExist(chnm))
 		{
+			if ((recieveChannel(chnm)->chanLimit != -1) 
+				&& (recieveChannel(chnm)->usersAmount()+1 > recieveChannel(chnm)->chanLimit))
+			return;
+
 			if (recieveChannel(chnm)->getIsInvite()
 				&& !recieveChannel(chnm)->isUserInvite(_users[fd]))
 			{
@@ -684,6 +688,17 @@ void Server::cmdMode(int fd, Message msg)
 				if (findUserForNick(msg.msgArgs[2]) != -1)
 					wrkChnl->addOperToChannel(&_users[findUserForNick(msg.msgArgs[2])]);
 			}
+			if (flag[1] == 'l')
+			{
+				if (msg.msgArgs.size() < 3)
+				{
+					std::cout << "not enough args" << std::endl;
+					// send resp
+					return;
+				}
+				if (std::atoi(msg.msgArgs[2].c_str()) > 1)
+					wrkChnl->chanLimit = std::atoi(msg.msgArgs[2].c_str());
+			}
 		}
 		else if (flag[0] == '-')
 		{
@@ -700,7 +715,10 @@ void Server::cmdMode(int fd, Message msg)
 				}
 				if (findUserForNick(msg.msgArgs[2]) != -1)
 					wrkChnl->remuveOper(&_users[findUserForNick(msg.msgArgs[2])]);
-			}					
+			}			
+			if (flag[1] == 'l')
+				wrkChnl->chanLimit = -1;
+
 		}
 		resp = ": 324"+_users[fd].getNickname()+" "+wrkChnl->getChanName()+" "+wrkChnl->getModeStr()+"\r\n";
 		ret = send(fd, resp.c_str(), resp.size(), 0);			

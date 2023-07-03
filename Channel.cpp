@@ -7,10 +7,16 @@ Channel::Channel(std::string name)
     // _mode.insert('n');
     // _mode.insert('t');	
 	_topic = "";
+	chanLimit = -1;
 }
 
 Channel::~Channel()
 {
+}
+
+int Channel::usersAmount()
+{
+	return _usersInChannel.size();
 }
 
 std::string Channel::getChanName()
