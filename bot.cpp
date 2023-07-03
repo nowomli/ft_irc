@@ -37,8 +37,6 @@ int Bot::processMsg(int fd, std::string msg)
 	if (msg.find("JOKE") != std::string::npos)
 	{
 		number = std::rand() % ANECDOTES.size();
-		// const char * t = "Test";
-		// send(fd, t, 4, 0);
 		send(fd, ANECDOTES[number].c_str(), ANECDOTES[number].size(), 0);
 	}
 	if (msg.find("TIME") != std::string::npos)
