@@ -44,8 +44,8 @@ int Bot::processMsg(int fd, Message Msg, std::string nickname)
 	}
 	if (msg.find("TIME") != std::string::npos)
 	{
-		s = getCurrentTimeAsString() + "\r\n";
-		send(fd, s.c_str(), s.size(), 0);
+		s = ":bot PRIVMSG " + nickname + " :" + getCurrentTimeAsString() + "\r\n";
+		send(fd,  s.c_str(), s.size(), 0);
 	}
 	return 1;
 };
