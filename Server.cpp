@@ -482,6 +482,7 @@ void Server::cmdJoin(int fd, Message msg)
 	std::string chnm;
 	// std::string chnm = msg.msgArgs[0]; // TODO !!!	
 	std::vector<std::string> chForJoin = devideChNames(msg.msgArgs[0]);
+	std::vector<std::string> keys = devideChNames(msg.msgArgs[1]);
 	for (int i = 0; i < chForJoin.size(); i++)
 	{
 		chnm = chForJoin[i];
@@ -489,7 +490,10 @@ void Server::cmdJoin(int fd, Message msg)
 		{
 			if ((recieveChannel(chnm)->chanLimit != -1) 
 				&& (recieveChannel(chnm)->usersAmount()+1 > recieveChannel(chnm)->chanLimit))
-			return;
+				return;
+
+			if ((recieveChannel(chnm)->key != "") && (recieveChannel(chnm)->key != keys[i]))
+				return;
 
 			if (recieveChannel(chnm)->getIsInvite()
 				&& !recieveChannel(chnm)->isUserInvite(_users[fd]))
@@ -729,7 +733,7 @@ void Server::cmdMode(int fd, Message msg)
 			if (flag[1] == 'l')
 				wrkChnl->chanLimit = -1;
 			if (flag[1] == 'k')
-				wrkChnl->chanLimit = "";
+				wrkChnl->key = "";
 		}
 		resp = ": 324"+_users[fd].getNickname()+" "+wrkChnl->getChanName()+" "+wrkChnl->getModeStr()+"\r\n";
 		ret = send(fd, resp.c_str(), resp.size(), 0);			
