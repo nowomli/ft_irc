@@ -4,6 +4,9 @@ Channel::Channel(std::string name)
 {
 	_channelName = name;
 	_isInvite = false;
+    // _mode.insert('n');
+    // _mode.insert('t');	
+	_topic = "";
 }
 
 Channel::~Channel()
@@ -108,4 +111,40 @@ void Channel::remuveUser(User rmUser)
 	}
 	if (i != _invitedUsers.size())
 		_invitedUsers.erase(_invitedUsers.begin() + i);			
+}
+
+std::string Channel::getClientsNick()
+{
+	std::string res;
+	for (int i = 0; i < _opersInChannel.size(); i++)
+	{
+		res+= "@" + _opersInChannel[i]->getNickname() + " ";
+	}
+	for  (int i = 0; i < _usersInChannel.size(); i++)
+	{
+		if (!IsOper(_usersInChannel[i]->getNickname()))
+			res +=  _usersInChannel[i]->getNickname() + " ";
+	}
+	return res;
+}
+
+void Channel::remuveOper(User *rmUser)
+{
+	std::string nick = rmUser->getNickname();	
+	int i;
+	for (i = 0; i < _opersInChannel.size(); i++)
+	{
+		if (_opersInChannel[i]->getNickname() == nick)
+			break;
+	}
+	if (i != _opersInChannel.size())
+		_opersInChannel.erase(_opersInChannel.begin() + i);	
+}
+
+std::string	Channel::getModeStr()
+{
+	std::string res = "";	
+	for (std::set<char>::iterator it = _mode.begin(); it != _mode.end(); it++)
+		res.push_back(*it);
+	return res;
 }

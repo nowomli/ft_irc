@@ -19,9 +19,9 @@ private:
 	std::vector<User *> _invitedUsers;
 
 	bool _isInvite;
-
 	// void rmUserFrVector
 public:
+	std::string _topic;
 	std::set<char> _mode;
 	std::string getChanName();
 	Channel(std::string name);
@@ -35,8 +35,11 @@ public:
 	bool isUserInvite(User checkUser);
 	void remuveUser(User rmUser);
 	bool IsOper(std::string nick);
+	void remuveOper(User *rmUser);
 
 	void sendToAllUsers(std::string text);
 	void sendToAllButOneUsers(std::string text, int fd);
+	std::string	getModeStr();
+	std::string getClientsNick();
 };
 

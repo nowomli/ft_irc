@@ -6,7 +6,7 @@
 /*   By: kmorunov <kmorunov@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/17 11:05:15 by inovomli          #+#    #+#             */
-/*   Updated: 2023/07/01 19:24:52 by kmorunov         ###   ########.fr       */
+/*   Updated: 2023/07/03 11:46:23 by kmorunov         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@
 
 #include "User.hpp"
 #include "Message.hpp"
-// #include "Channel.hpp"
+#include "bot.hpp"
 
 #define POLLEVENTS (POLLIN | POLLOUT | POLLERR | POLLHUP | POLLNVAL)
 
@@ -34,6 +34,7 @@ class User;
 class Server
 {
 private:
+	Bot _bot;
 	int _port;
 	std::string _pass;
 	/// @brief IPV4/TCP Server socket 
@@ -73,4 +74,8 @@ public:
 	void cmdMode(int fd, Message msg);// 		/mode #channel|nickname [[+|-]modechars [parameters]]
 	void cmdTopic(int fd, Message msg);// 		/topic #channel newtopic
 	void cmdInvite(int fd, Message msg);//		/invite nickname #channel			
+
+	void cmdPing(int fd, Message msg);	
+	void cmdNotice(int fd, Message msg);	
+	void cmdWho(int fd, Message msg);			
 };

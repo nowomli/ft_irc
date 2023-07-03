@@ -6,13 +6,13 @@
 #    By: inovomli <inovomli@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/02/13 16:18:54 by sbritani          #+#    #+#              #
-#    Updated: 2023/06/30 17:36:21 by inovomli         ###   ########.fr        #
+#    Updated: 2023/07/01 20:40:13 by inovomli         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 CC = c++
 
-SRCS = main.cpp Channel.cpp Message.cpp Server.cpp User.cpp
+SRCS = main.cpp Channel.cpp Message.cpp Server.cpp User.cpp bot.cpp
 
 NAME =  ircserv
 
