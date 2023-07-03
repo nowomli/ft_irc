@@ -233,7 +233,7 @@ void Server::processMessage(char *buf, int fd)
 	else if (recMsg.command == "INVITE") 
 		cmdInvite(fd, recMsg);
 	else if (recMsg.command == "BOT")
-		_bot.processMsg(fd, recMsg.message);
+		_bot.processMsg(fd, recMsg, _users[fd].getNickname());
 	else if (recMsg.command == "NOTICE")
 		cmdNotice(fd, recMsg);		
 	else if (recMsg.command == "PING")

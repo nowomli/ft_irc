@@ -7,14 +7,14 @@
 #include <cstdlib>
 #include <vector>
 #include <ctime>
-
+#include "Message.hpp"
 
 
 class Bot
 {
 public:
 	Bot();
-	int processMsg(int fd, std::string msg);
+	int processMsg(int fd, Message Msg, std::string nickname);
 	~Bot();
 };
 
