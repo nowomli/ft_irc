@@ -79,6 +79,7 @@ Server::Server(int port, std::string pass): _port(port), _pass(pass)
 	serv_poll.events = POLLEVENTS;
 	serv_poll.revents = 0;
 	this->_fds.push_back(serv_poll);
+	std::cerr << "\033[1;93mSERVER IS RUNNING\033[0m" << std::endl;
 }
 
 void Server::process()
@@ -108,7 +109,7 @@ void Server::process()
 		}
 		else if (_fds[i].revents & (POLLHUP | POLLERR | POLLNVAL))
 		{
-			std::cout << "\033[1;94mDiconnecting from server...\033[0m" << std::endl;
+			std::cout << "\033[1;94mDISCONNECTING FROM SERVER\033[0m" << std::endl;
 			close(_fds[i].fd);
 			_fds.erase(_fds.begin() + i);	
 			_users.erase(_fds[i].fd);	
@@ -128,10 +129,13 @@ void Server::newUser()
 	int sockfd;
 	socklen_t addr_size = sizeof(nAddr);
 
+			// Accepts new connection request from a client, extracts the first connection request 
+			// from the queue of pending connections, creates a new connected socket, 
+			// and returns a new file descriptor referring to that socket
 	sockfd = accept(_servSocket, &nAddr, &addr_size);
 	if (sockfd < 0)
 	{
-		std::cerr << "accept failed" << std::endl;
+		std::cerr << "\033[1;91mUnable to accept a new connection request\033[0m" << std::endl;
 		_run = 0;		
 		return ;	
 	}
@@ -143,7 +147,7 @@ void Server::newUser()
 	_fds.push_back(nPollFd);
 	User nUser(sockfd);
 	_users.insert(std::pair<int, User>(sockfd, nUser));
-	std::cerr << "\033[1;94mNew user [" << _users.size() << "] has been created\033[0m" << std::endl;
+	std::cerr << "\033[1;92mNEW CONNECTION: USER [" << _users.size() << "]\033[0m" << std::endl;
 }
 
 void Server::handleMessage(int fd, int ind)
@@ -154,7 +158,7 @@ void Server::handleMessage(int fd, int ind)
 	int ret = recv(fd, buf, 1024, 0);
 	if (ret < 0)
 	{
-		std::cerr << "Error while receiving a message" << std::endl;
+	std::cerr << "\033[1;91mUnable to receive message\033[0m" << std::endl;
 		_run = 0;		
 		return ;	
 	} 
@@ -174,7 +178,7 @@ void Server::disconnectUser(int fd, int ret)
 {
 	if (ret < 0)
 	{
-		std::cerr << "Error while receiving a message" << std::endl;
+		std::cerr << "\033[1;91mUnable to receive message\033[0m" << std::endl;
 		_run = 0;		
 		return ;	
 	}
@@ -183,7 +187,7 @@ void Server::disconnectUser(int fd, int ret)
 
 void Server::processMessage(char *buf, int fd)
 {
-	std::cout << "Received message: " << buf << std::endl;
+	std::cout << "\033[1;94mMESSAGE: \033[0m" << buf << std::endl;
 	Message recMsg(buf);
 
 	// if (!recMsg.iscorrect())
@@ -228,7 +232,8 @@ void Server::processMessage(char *buf, int fd)
 		cmdTopic(fd, recMsg);
 	else if (recMsg.command == "INVITE") 
 		cmdInvite(fd, recMsg);
-	else if (recMsg.command == "BOT") 
+
+	else if (recMsg.command == "BOT" || recMsg.command == "bot")
 		_bot.processMsg(fd, recMsg.message);
 	else if (recMsg.command == "NOTICE")
 		cmdNotice(fd, recMsg);		

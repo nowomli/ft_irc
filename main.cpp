@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: inovomli <inovomli@student.42.fr>          +#+  +:+       +#+        */
+/*   By: kmorunov <kmorunov@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/17 10:50:46 by inovomli          #+#    #+#             */
-/*   Updated: 2023/06/26 12:16:07 by inovomli         ###   ########.fr       */
+/*   Updated: 2023/07/03 15:36:16 by kmorunov         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,6 +33,5 @@ int main(int argc, char *argv[])
 		serv.process();
 	}
 	// server.finish();
-
 	return EXIT_SUCCESS;
 }

@@ -17,15 +17,16 @@ std::string getCurrentTimeAsString() {
 	return timeString;
 }
 
+#include <iostream>
 int Bot::processMsg(int fd, std::string msg)
 {
 
     std::vector<std::string> ANECDOTES;
-    ANECDOTES.push_back("Why don't scientists trust atoms? Because they make up everything!\r\n");
-    ANECDOTES.push_back("Did you hear about the mathematician who's afraid of negative numbers? He'll stop at nothing to avoid them!\r\n");
-    ANECDOTES.push_back("I used to be a baker, but I couldn't make enough dough.\r\n");
-    ANECDOTES.push_back("Why did the scarecrow win an award? Because he was outstanding in his field!\r\n");
-    ANECDOTES.push_back("Why don't skeletons fight each other? They don't have the guts!\r\n");
+    ANECDOTES.push_back(": Why don't scientists trust atoms? Because they make up everything!\r\n");
+    ANECDOTES.push_back(": Did you hear about the mathematician who's afraid of negative numbers? He'll stop at nothing to avoid them!\r\n");
+    ANECDOTES.push_back(": I used to be a baker, but I couldn't make enough dough.\r\n");
+    ANECDOTES.push_back(": Why did the scarecrow win an award? Because he was outstanding in his field!\r\n");
+    ANECDOTES.push_back(": Why don't skeletons fight each other? They don't have the guts!\r\n");
 
 	int number;
 	std::string s;
@@ -33,9 +34,11 @@ int Bot::processMsg(int fd, std::string msg)
 	{
 		msg[i] = std::toupper(msg[i]);
 	}
-	if (msg.find("ANECDOTE") != std::string::npos)
+	if (msg.find("JOKE") != std::string::npos)
 	{
 		number = std::rand() % ANECDOTES.size();
+		// const char * t = "Test";
+		// send(fd, t, 4, 0);
 		send(fd, ANECDOTES[number].c_str(), ANECDOTES[number].size(), 0);
 	}
 	if (msg.find("TIME") != std::string::npos)
