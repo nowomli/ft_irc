@@ -396,7 +396,7 @@ void Server::cmdNick(int fd, Message msg)
 	// std::cout << msg.msgArgs[0] << std::endl;
 	if (msg.msgArgs[0].size() == 0)
 		return;
-	if (findUserForNick(msg.msgArgs[0]) == -1)
+	if (findUserForNick(msg.msgArgs[0]) == -1 && msg.msgArgs[0] != "bot")
 	{
 		_users[fd].setNickname(msg.msgArgs[0]);
 	}
