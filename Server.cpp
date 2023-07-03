@@ -362,6 +362,12 @@ void Server::cmdPing(int fd, Message msg)
 
 void Server::cmdPass(int fd, Message msg)
 {
+	if (msg.msgArgs.size() < 1)
+	{
+		std::cout << "not enough args" << std::endl;
+		// send resp
+		return;
+	}
 	std::string response;
 	if (!_users[fd].getIsPassInput())
 	{
@@ -380,6 +386,12 @@ void Server::cmdPass(int fd, Message msg)
 
 void Server::cmdNick(int fd, Message msg)
 {
+	if (msg.msgArgs.size() < 1)
+	{
+		std::cout << "not enough args" << std::endl;
+		// send resp
+		return;
+	}
 	std::string resp;
 	// std::cout << msg.msgArgs[0] << std::endl;
 	if (msg.msgArgs[0].size() == 0)
@@ -417,6 +429,12 @@ int Server::findUserForNick(std::string nick)
 
 void Server::cmdUser(int fd, Message msg)
 {
+	if (msg.msgArgs.size() < 1)
+	{
+		std::cout << "not enough args" << std::endl;
+		// send resp
+		return;
+	}
 	std::string resp;
 	_users[fd].setUsername(msg.msgArgs[0]);
 	if (_users[fd].getIsNickInput() && _users[fd].getIsUserNameI())
