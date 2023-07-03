@@ -330,7 +330,7 @@ void Server::cmdNotice(int fd, Message msg)
 		}
 		// sendToChannel(msg);
 		Channel *wrkChnl = recieveChannel(dist);		
-		resp = ":"+_users[fd].getNickname()+" PRIVMSG "+dist+" :"+msg.msgArgs[1]+"\r\n";		
+		resp = ":"+_users[fd].getNickname()+" NOTICE "+dist+" :"+msg.msgArgs[1]+"\r\n";		
 		// wrkChnl->sendToAllUsers(resp);
 		wrkChnl->sendToAllButOneUsers(resp, fd);
 	}
@@ -342,7 +342,7 @@ void Server::cmdNotice(int fd, Message msg)
 			return ;
 		}
 		// sendToUser(msg);
-		resp = ":"+_users[fd].getNickname()+" PRIVMSG "+dist+" :"+msg.msgArgs[1]+"\r\n";
+		resp = ":"+_users[fd].getNickname()+" NOTICE "+dist+" :"+msg.msgArgs[1]+"\r\n";
 		ret = send(findUserForNick(dist), resp.c_str(), resp.size(), 0);		
 	}	
 }
