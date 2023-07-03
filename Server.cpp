@@ -537,13 +537,15 @@ void Server::cmdJoin(int fd, Message msg)
 				ret = send(fd, resp.c_str(), resp.size(), 0);	
 			}
 
-			resp = "353"+_users[fd].getNickname()+" = "+chnm+ " :"+ recieveChannel(chnm)->getClientsNick() + "\r\n";
-			ret = send(fd, resp.c_str(), resp.size(), 0);	
-			resp = "366 "+_users[fd].getNickname()+ " "+chnm+" :END of NAMES list\r\n";
-			ret = send(fd, resp.c_str(), resp.size(), 0);			
+			// resp = "353"+_users[fd].getNickname()+" = "+chnm+ " :"+ recieveChannel(chnm)->getClientsNick() + "\r\n";
+			// ret = send(fd, resp.c_str(), resp.size(), 0);	
+			// resp = "366 "+_users[fd].getNickname()+ " "+chnm+" :END of NAMES list\r\n";
+			// ret = send(fd, resp.c_str(), resp.size(), 0);			
 		}
 		else
 		{
+			if ((chnm.size() < 2) && (chnm[0] != '#'))
+				return;
 			Channel newChl(chnm);
 			newChl.addUserToChannel(&_users[fd]);
 			newChl.addOperToChannel(&_users[fd]);
@@ -552,10 +554,10 @@ void Server::cmdJoin(int fd, Message msg)
 			resp = ":"+_users[fd].getNickname()+" JOIN :"+chnm+"\r\n";
 			ret = send(fd, resp.c_str(), resp.size(), 0);	
 
-			resp = ": 353"+_users[fd].getNickname()+" = "+chnm+ " :"+ newChl.getClientsNick() + "\r\n";
-			ret = send(fd, resp.c_str(), resp.size(), 0);	
-			resp = ": 366 "+_users[fd].getNickname()+ " "+chnm+" :END of NAMES list\r\n";
-			ret = send(fd, resp.c_str(), resp.size(), 0);	
+			// resp = ": 353"+_users[fd].getNickname()+" = "+chnm+ " :"+ newChl.getClientsNick() + "\r\n";
+			// ret = send(fd, resp.c_str(), resp.size(), 0);	
+			// resp = ": 366 "+_users[fd].getNickname()+ " "+chnm+" :END of NAMES list\r\n";
+			// ret = send(fd, resp.c_str(), resp.size(), 0);	
 		}
 
 	}
