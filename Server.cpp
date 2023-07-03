@@ -451,6 +451,16 @@ std::vector<std::string> divideChannelsToJoin(std::string msgprt)
 	return joinChans;
 }
 
+std::vector<std::string> Server::devideChNames(std::string chnmArg)
+{
+	std::istringstream iss(chnmArg);
+	std::string token;	
+	std::vector<std::string> res;
+    while (std::getline(iss, token, ',')) 	
+		res.push_back(token);
+	return res;
+}
+
 // /join #channel
 void Server::cmdJoin(int fd, Message msg)
 {
@@ -464,47 +474,54 @@ void Server::cmdJoin(int fd, Message msg)
 	// divide channels to separete channel
 	std::string resp;
 	int ret;
-	std::string chnm = msg.msgArgs[0]; // TODO !!!
-	if (IsChannelExist(chnm))
+	std::string chnm;
+	// std::string chnm = msg.msgArgs[0]; // TODO !!!	
+	std::vector<std::string> chForJoin = devideChNames(msg.msgArgs[0]);
+	for (int i = 0; i < chForJoin.size(); i++)
 	{
-		if (recieveChannel(chnm)->getIsInvite()
-			&& !recieveChannel(chnm)->isUserInvite(_users[fd]))
+		chnm = chForJoin[i];
+		if (IsChannelExist(chnm))
 		{
-			resp = ":"+_host+" 473 "+_users[fd].getNickname()+" "+chnm+" :Cannot join channel (invite only)\r\n";
-			ret = send(fd, resp.c_str(), resp.size(), 0);				
-			return;
-		}
-		if (recieveChannel(chnm)->IsUserInsideChannel(_users[fd].getNickname()))
-			return;
-		recieveChannel(chnm)->addUserToChannel(&_users[fd]);
-		resp = ":"+_users[fd].getNickname()+" JOIN :"+chnm+"\r\n";
-		ret = send(fd, resp.c_str(), resp.size(), 0);			
+			if (recieveChannel(chnm)->getIsInvite()
+				&& !recieveChannel(chnm)->isUserInvite(_users[fd]))
+			{
+				resp = ":"+_host+" 473 "+_users[fd].getNickname()+" "+chnm+" :Cannot join channel (invite only)\r\n";
+				ret = send(fd, resp.c_str(), resp.size(), 0);				
+				return;
+			}
+			if (recieveChannel(chnm)->IsUserInsideChannel(_users[fd].getNickname()))
+				return;
+			recieveChannel(chnm)->addUserToChannel(&_users[fd]);
+			resp = ":"+_users[fd].getNickname()+" JOIN :"+chnm+"\r\n";
+			ret = send(fd, resp.c_str(), resp.size(), 0);			
 
-		if (recieveChannel(chnm)->_topic != "")
+			if (recieveChannel(chnm)->_topic != "")
+			{
+				resp = ": 332 "+_users[fd].getNickname()+ " "+chnm+" :" + recieveChannel(chnm)->_topic +"\r\n";
+				ret = send(fd, resp.c_str(), resp.size(), 0);	
+			}
+
+			resp = "353"+_users[fd].getNickname()+" = "+chnm+ " :"+ recieveChannel(chnm)->getClientsNick() + "\r\n";
+			ret = send(fd, resp.c_str(), resp.size(), 0);	
+			resp = "366 "+_users[fd].getNickname()+ " "+chnm+" :END of NAMES list\r\n";
+			ret = send(fd, resp.c_str(), resp.size(), 0);			
+		}
+		else
 		{
-			resp = ": 332 "+_users[fd].getNickname()+ " "+chnm+" :" + recieveChannel(chnm)->_topic +"\r\n";
+			Channel newChl(chnm);
+			newChl.addUserToChannel(&_users[fd]);
+			newChl.addOperToChannel(&_users[fd]);
+			_users[fd].channels.push_back(&newChl);
+			_channels.push_back(newChl);
+			resp = ":"+_users[fd].getNickname()+" JOIN :"+chnm+"\r\n";
+			ret = send(fd, resp.c_str(), resp.size(), 0);	
+
+			resp = ": 353"+_users[fd].getNickname()+" = "+chnm+ " :"+ newChl.getClientsNick() + "\r\n";
+			ret = send(fd, resp.c_str(), resp.size(), 0);	
+			resp = ": 366 "+_users[fd].getNickname()+ " "+chnm+" :END of NAMES list\r\n";
 			ret = send(fd, resp.c_str(), resp.size(), 0);	
 		}
 
-		resp = "353"+_users[fd].getNickname()+" = "+chnm+ " :"+ recieveChannel(chnm)->getClientsNick() + "\r\n";
-		ret = send(fd, resp.c_str(), resp.size(), 0);	
-		resp = "366 "+_users[fd].getNickname()+ " "+chnm+" :END of NAMES list\r\n";
-		ret = send(fd, resp.c_str(), resp.size(), 0);			
-	}
-	else
-	{
-		Channel newChl(chnm);
-		newChl.addUserToChannel(&_users[fd]);
-		newChl.addOperToChannel(&_users[fd]);
-		_users[fd].channels.push_back(&newChl);
-		_channels.push_back(newChl);
-		resp = ":"+_users[fd].getNickname()+" JOIN :"+chnm+"\r\n";
-		ret = send(fd, resp.c_str(), resp.size(), 0);	
-
-		resp = ": 353"+_users[fd].getNickname()+" = "+chnm+ " :"+ newChl.getClientsNick() + "\r\n";
-		ret = send(fd, resp.c_str(), resp.size(), 0);	
-		resp = ": 366 "+_users[fd].getNickname()+ " "+chnm+" :END of NAMES list\r\n";
-		ret = send(fd, resp.c_str(), resp.size(), 0);	
 	}
 }
 
