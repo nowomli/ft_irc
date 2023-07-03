@@ -350,6 +350,12 @@ void Server::cmdNotice(int fd, Message msg)
 
 void Server::cmdPing(int fd, Message msg)
 {
+	if (msg.msgArgs.size() < 1)
+	{
+		std::cout << "not enough args" << std::endl;
+		// send resp
+		return;
+	}
 	std::string response;
 	response = ":" + _host + " PONG " + _host + " :" + msg.msgArgs[0] +"\r\n";
 	send(fd, response.c_str(), response.size(), 0);		
