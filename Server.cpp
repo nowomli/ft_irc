@@ -232,8 +232,7 @@ void Server::processMessage(char *buf, int fd)
 		cmdTopic(fd, recMsg);
 	else if (recMsg.command == "INVITE") 
 		cmdInvite(fd, recMsg);
-
-	else if (recMsg.command == "BOT" || recMsg.command == "bot")
+	else if (recMsg.command == "BOT")
 		_bot.processMsg(fd, recMsg.message);
 	else if (recMsg.command == "NOTICE")
 		cmdNotice(fd, recMsg);		
